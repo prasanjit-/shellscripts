@@ -1,4 +1,16 @@
 #!/bin/bash
+## -PUPPET MASTER
+
+# Script at - https://github.com/prasanjit-/shellscripts/blob/master/puppet_master_install.bash
+
+#Some Prerequisites--
+#If you are not using DNS in your envrionment, you will need to manually edit your hosts file on both  machines .
+#vim /etc/hosts
+#10.1.x.x                node
+#10.1.x.y                puppet-server
+# The the pem file in below script shpuld be named as `hostname`.pem (modify script and run)
+
+
 # Installs Puppet Server on CentOS-7
 rpm -ivh https://yum.puppetlabs.com/el/7/products/x86_64/puppetlabs-release-7-11.noarch.rpm
 yum install -y puppet-server
