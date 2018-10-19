@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # webhits -- Reports amount of website hits, total values and per user hits by parsing the Apache Access log
-# Compiled By: Prasanjit 
+# Author: Prasanjit 
 #
 ########
 # Declare the apache access log path by either using 
