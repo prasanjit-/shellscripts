@@ -1,0 +1,67 @@
+#!/bin/bash
+# Probe the repo for changes and update if needed
+
+workroot=/opt
+workingdir="$workroot/xxxx"
+backupdir="$workroot/yyyy"
+repourl="https://gitlab.com/xxxx/xxxx.git"
+branch="develop"
+
+## Update Function
+
+
+health()
+{
+	response=$(curl --write-out '%{http_code}' --silent --output /dev/null http://localhost:3000)
+	if [ $response != "200" ]; then
+    echo "Not healthy! Restarting!"
+    npmrunner
+	fi
+
+}
+
+
+npmrunner()
+{
+   killall -9 /usr/bin/node #kill node procs if exists
+   npm i
+   npm run dev&
+}
+
+
+redeploy()
+{
+   if [ -d "$backup" ]; then rm -rf $backupdir ; fi
+   if [ -d "$workingdir" ]; then mv $workingdir $backupdir; fi
+   git clone -b $branch $repourl
+   cd $workingdir
+   npmrunner
+
+}
+
+
+## Check status of Repo
+if [[ ! -e $workingdir ]]; then
+    redeploy
+fi
+
+cd $workingdir
+UPSTREAM=${1:-'@{u}'}
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse "$UPSTREAM")
+BASE=$(git merge-base @ "$UPSTREAM")
+if [ $LOCAL = $REMOTE ]; then
+    echo "Up-to-date. Exit!"
+    health
+    exit 0
+elif [ $LOCAL = $BASE ]; then
+    echo "Need to pull"
+    redeploy
+elif [ $REMOTE = $BASE ]; then
+    echo "Need to push. Exit!"
+    health
+    exit 0
+else
+    echo "Diverged. Not allowed! redeploy!"
+    redeploy
+fi
